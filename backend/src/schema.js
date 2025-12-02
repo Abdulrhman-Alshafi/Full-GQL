@@ -17,8 +17,33 @@ export const typeDefs = gql`
     token: String!
   }
 
+  input RegisterInput {
+    name: String!
+    email: String!
+    password: String!
+  }
+
+  input LoginInput {
+    email: String!
+    password: password!
+  }
+  input CreateTaskInput {
+    title: String!
+  }
+  input UpdateTaskInput {
+    title: String
+    completed: Boolean
+  }
   type Query {
     me: User
     tasks: [Task!]
+  }
+
+  type Mutation {
+    register(input: RegisterInput!): AuthPayload!
+    login(input: LoginInput!): AuthPayload!
+    CreateTask(input: CreateTaskInput!): Task!
+    updateTask(id: ID!, input: UpdateTaskInput!): Task!
+    deleteTask(id: ID!): Boolean
   }
 `;
