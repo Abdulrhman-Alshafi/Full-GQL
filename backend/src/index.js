@@ -9,7 +9,12 @@ import { typeDefs } from "./schema.js";
 import { resolvers } from "./resolvers.js";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 await mongoose.connect(process.env.MONGO_URI);

@@ -15,7 +15,7 @@ export const resolvers = {
     //get user tasks
     tasks: async (_, __, { userId }) => {
       if (!userId) throw new Error("Not authenticated");
-      return (await Task.find({ user: userId })).toSorted({ createdAt: -1 });
+      return Task.find({ user: userId }).sort({ createdAt: -1 });
     },
   },
   Mutation: {
@@ -28,7 +28,10 @@ export const resolvers = {
       });
       res.cookie("token", token, {
         httpOnly: true,
+        secure: false,
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/",
       });
       return { user, token };
     },
@@ -41,7 +44,13 @@ export const resolvers = {
       const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      res.cookie("token", token, { httpOnly: true });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false, // ← MUST be false in localhost dev
+        sameSite: "lax", // ← 'none' would require secure=true
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/", // ← important!
+      });
       return { user, token };
     },
     //create task function
