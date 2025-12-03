@@ -25,7 +25,7 @@ export const typeDefs = gql`
 
   input LoginInput {
     email: String!
-    password: password!
+    password: String!
   }
   input CreateTaskInput {
     title: String!
@@ -42,7 +42,7 @@ export const typeDefs = gql`
   type Mutation {
     register(input: RegisterInput!): AuthPayload!
     login(input: LoginInput!): AuthPayload!
-    CreateTask(input: CreateTaskInput!): Task!
+    createTask(input: CreateTaskInput!): Task!
     updateTask(id: ID!, input: UpdateTaskInput!): Task!
     deleteTask(id: ID!): Boolean
   }
