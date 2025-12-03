@@ -6,6 +6,7 @@ import Task from "./models/Task.js";
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export const resolvers = {
+  //Querys
   Query: {
     //get user {me account}
     me: async (_, __, { userId }) => {
@@ -18,6 +19,8 @@ export const resolvers = {
       return Task.find({ user: userId }).sort({ createdAt: -1 });
     },
   },
+
+  //Mutations
   Mutation: {
     // register function
     register: async (_, { input }, { res }) => {
