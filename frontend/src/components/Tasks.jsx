@@ -46,7 +46,6 @@ export default function Tasks({ user }) {
         </button>
       </div>
 
-      {/* Always show the add task form */}
       <form onSubmit={handleAdd} className="flex gap-3 mb-8">
         <input
           name="title"
