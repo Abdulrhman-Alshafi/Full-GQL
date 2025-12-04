@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "./models/User.js";
 import Task from "./models/Task.js";
+import e from "express";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -14,9 +15,36 @@ export const resolvers = {
       return await User.findById(userId);
     },
     //get user tasks
-    tasks: async (_, __, { userId }) => {
+    tasks: async (_, { first = 10, after }, { userId }) => {
       if (!userId) throw new Error("Not authenticated");
-      return Task.find({ user: userId }).sort({ createdAt: -1 });
+
+      const query = { user: userId };
+
+      if (after) {
+        const afterTask = await Task.findById(after);
+        if (!afterTask) throw new Error("Invalid cursor");
+        query._id = { $lt: afterTask._id };
+      }
+      const tasks = await Task.find(query)
+        .sort({ createdAt: -1 })
+        .limit(first + 1);
+
+      const hasNextPage = tasks.length > first;
+
+      const sliedTasks = hasNextPage ? tasks.slice(0, -1) : tasks;
+
+      return {
+        edges: sliedTasks.map((task) => ({
+          cursor: task.createdAt.getTime().toString(),
+          node: task,
+        })),
+        pageInfo: {
+          endCursor: sliedTasks.length
+            ? sliedTasks[sliedTasks.length - 1].createdAt.getTime().toString()
+            : null,
+          hasNextPage,
+        },
+      };
     },
   },
 

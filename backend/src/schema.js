@@ -10,6 +10,22 @@ export const typeDefs = gql`
     id: ID!
     title: String!
     completed: Boolean!
+    createdAt: String!
+  }
+
+  type TaskEdge {
+    cursor: String!
+    node: Task!
+  }
+
+  type TaskConnection {
+    edges: [TaskEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  type PageInfo {
+    endCursor: String
+    hasNextPage: Boolean!
   }
 
   type AuthPayload {
@@ -36,7 +52,7 @@ export const typeDefs = gql`
   }
   type Query {
     me: User
-    tasks: [Task!]
+    tasks(first: Int = 10, after: String): TaskConnection!
   }
 
   type Mutation {

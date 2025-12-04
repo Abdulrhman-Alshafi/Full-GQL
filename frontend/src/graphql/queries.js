@@ -11,11 +11,22 @@ export const GET_ME = gql`
 `;
 
 export const GET_TASKS = gql`
-  query Tasks {
-    tasks {
-      id
-      title
-      completed
+  query GetTasks($first: Int!, $after: String) {
+    tasks(first: $first, after: $after) {
+      edges {
+        cursor
+        node {
+          id
+          title
+          completed
+          __typename
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+        __typename
+      }
     }
   }
 `;

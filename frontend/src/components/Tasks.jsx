@@ -7,7 +7,10 @@ import {
 } from "../graphql/queries.js";
 
 export default function Tasks({ user }) {
-  const { data, loading, refetch } = useQuery(GET_TASKS);
+  const { data, loading, refetch, fetchMore } = useQuery(GET_TASKS, {
+    variables: { first: 10, after: null },
+  });
+
   const [create] = useMutation(CREATE_TASK);
   const [update] = useMutation(UPDATE_TASK);
   const [remove] = useMutation(DELETE_TASK);
@@ -16,9 +19,19 @@ export default function Tasks({ user }) {
     e.preventDefault();
     const title = e.target.title.value.trim();
     if (!title) return;
+
     await create({ variables: { input: { title } } });
+
     e.target.reset();
-    refetch();
+    refetch(); // refresh list
+  };
+
+  const loadMore = () => {
+    fetchMore({
+      variables: {
+        after: data.tasks.pageInfo.endCursor,
+      },
+    });
   };
 
   if (loading) return <p className="text-center text-xl">Loading tasks...</p>;
@@ -30,6 +43,8 @@ export default function Tasks({ user }) {
       </p>
     );
   }
+
+  const edges = data.tasks.edges;
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-8">
@@ -62,12 +77,12 @@ export default function Tasks({ user }) {
       </form>
 
       <div className="space-y-3">
-        {data.tasks.length === 0 ? (
+        {edges.length === 0 ? (
           <p className="text-center text-gray-500 py-10">
             No tasks yet. Add one above!
           </p>
         ) : (
-          data.tasks.map((task) => (
+          edges.map(({ node: task }) => (
             <div
               key={task.id}
               className="flex items-center justify-between p-5 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
@@ -108,6 +123,17 @@ export default function Tasks({ user }) {
           ))
         )}
       </div>
+
+      {data.tasks.pageInfo.hasNextPage && (
+        <div className="text-center mt-6">
+          <button
+            onClick={loadMore}
+            className="px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300"
+          >
+            Load More
+          </button>
+        </div>
+      )}
     </div>
   );
 }
